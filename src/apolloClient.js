@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, HttpLink, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
 
 const httpLink = new HttpLink({
   uri: 'https://internal-cattle-16.hasura.app/v1/graphql',
