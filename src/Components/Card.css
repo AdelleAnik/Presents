@@ -23,4 +23,8 @@
     padding: 15px;
     text-align: center;
   }
+  .card-link {
+    text-decoration: none; /* Removes underline */
+    color: inherit; /* Inherits text color from parent elements */
+  }
   
