@@ -8,7 +8,7 @@ function Card({ item }) {
         <img src={item.image_url} alt={item.name} />
         <div className="card-content">
           <h3>{item.name}</h3>
-          <p>{item.price}</p>
+          <p>CAD$ {item.price}</p>
           <p>{item.description}</p>
         </div>
       </div>
