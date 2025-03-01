@@ -1,5 +1,7 @@
 import React from 'react';
 import './Card.css';
+import { Typography } from '@mui/material';
+
 
 function Card({ item }) {
   return (
@@ -7,9 +9,9 @@ function Card({ item }) {
       <div className="card">
         <img src={item.image_url} alt={item.name} />
         <div className="card-content">
-          <h3>{item.name}</h3>
-          <p>CAD$ {item.price}</p>
-          <p>{item.description}</p>
+        <Typography>{item.name}</Typography>
+        <Typography>CAD$ {item.price}</Typography>
+        <Typography>{item.description}</Typography>
         </div>
       </div>
     </a>
