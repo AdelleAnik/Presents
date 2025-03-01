@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
-import { Grid, TextField, Typography, Button  } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { Grid, TextField, Typography, Button, FormControl } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+
+const GET_CATEGORIES = gql`
+  query GetCategories {
+    presents(distinct_on: category, order_by: { category: asc }) {
+      category
+    }
+  }
+`;
 
 const ADD_PRESENT = gql`
   mutation AddPresent(
@@ -44,38 +53,37 @@ function AddItemForm({ onClose, onSuccess }) {
     image_url: '',
     url: '',
   });
+
+  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES);
   const [addPresent] = useMutation(ADD_PRESENT);
+
+  useEffect(() => {
+    console.log('Fetched categories data:', data);
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleCategoryChange = (event, newValue) => {
+    setFormData((prev) => ({ ...prev, category: newValue || '' }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const missingFields = Object.entries(formData).filter(([key, value]) => !value);
     if (missingFields.length > 0) {
       alert(`Please fill out all fields: ${missingFields.map(([key]) => key).join(', ')}`);
       return;
     }
-
-    try {
-      await addPresent({
-        variables: {
-          name: formData.name,
-          image_url: formData.image_url,
-          description: formData.description,
-          category: formData.category,
-          price: formData.price,
-          url: formData.url,
-        },
-      });
-      onSuccess(); // Refetch data
-      onClose(); // Close form
-    } catch (error) {
-      console.error('Error adding item:', error);
-    }
   };
+
+  if (loading) return <p>Loading categories...</p>;
+  if (error) return <p>Error loading categories: {error.message}</p>;
+
+  const categories = data?.presents?.map((cat) => cat.category).filter(Boolean) || [];
 
   return (
     <div
@@ -107,31 +115,42 @@ function AddItemForm({ onClose, onSuccess }) {
         <Grid container spacing={2}>
           {Object.keys(formData).map((field) => (
             <Grid item xs={12} sm={12} key={field}>
-              <TextField
-                fullWidth
-                label={field.charAt(0).toUpperCase() + field.slice(1)}
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                variant="outlined"
-              />
+              {field === 'category' ? (
+                <FormControl fullWidth variant="outlined">
+                  <Autocomplete
+                    freeSolo
+                    options={categories}
+                    value={formData.category}
+                    onChange={handleCategoryChange}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Category"
+                        variant="outlined"
+                        name="category"
+                        onChange={handleChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              ) : (
+                <TextField
+                  fullWidth
+                  label={field.charAt(0).toUpperCase() + field.slice(1)}
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  variant="outlined"
+                />
+              )}
             </Grid>
           ))}
         </Grid>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="outlined"
-            color="secondary"
-          >
+          <Button type="button" onClick={onClose} variant="outlined" color="secondary">
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-          >
+          <Button type="submit" variant="contained" color="primary">
             Add
           </Button>
         </div>
@@ -141,4 +160,3 @@ function AddItemForm({ onClose, onSuccess }) {
 }
 
 export default AddItemForm;
-
