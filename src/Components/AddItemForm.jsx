@@ -75,7 +75,7 @@ function AddItemForm({ onClose, onSuccess }) {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <Typography variant="h4" component="h2">
+        <Typography variant="h4" component="h2" textAlign={'center'}>
           Add New Item
         </Typography>
         <Grid container spacing={2}>
@@ -113,7 +113,12 @@ function AddItemForm({ onClose, onSuccess }) {
           ))}
         </Grid>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-          <Button type="button" onClick={onClose} variant="outlined" color="secondary">
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="outlined"
+            color="tertiary"
+          >
             Cancel
           </Button>
           <Button type="submit" variant="contained" color="primary">
