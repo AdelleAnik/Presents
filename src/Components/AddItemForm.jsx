@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Grid, TextField, Typography, Button, FormControl } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -7,39 +7,6 @@ const GET_CATEGORIES = gql`
   query GetCategories {
     presents(distinct_on: category, order_by: { category: asc }) {
       category
-    }
-  }
-`;
-
-const ADD_PRESENT = gql`
-  mutation AddPresent(
-    $name: String
-    $image_url: String
-    $description: String
-    $category: String
-    $price: String
-    $url: String
-  ) {
-    insert_presents(
-      objects: {
-        name: $name
-        image_url: $image_url
-        description: $description
-        category: $category
-        price: $price
-        url: $url
-      }
-    ) {
-      affected_rows
-      returning {
-        id
-        name
-        category
-        price
-        description
-        image_url
-        url
-      }
     }
   }
 `;
@@ -54,8 +21,7 @@ function AddItemForm({ onClose, onSuccess }) {
     url: '',
   });
 
-  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES);
-  const [addPresent] = useMutation(ADD_PRESENT);
+  const { data, loading, error } = useQuery(GET_CATEGORIES);
 
   useEffect(() => {
     console.log('Fetched categories data:', data);
