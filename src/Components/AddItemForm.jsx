@@ -193,8 +193,8 @@ function AddItemForm({ onClose, onSuccess }) {
                     )}
                     ListboxProps={{
                       style: {
-                        maxHeight: '200px', // 👈 sets max height
-                        overflowY: 'auto',  // 👈 enables vertical scrolling
+                        maxHeight: '200px', // sets max height
+                        overflowY: 'auto',  // enables vertical scrolling
                       },
                     }}
                     renderInput={(params) => (
