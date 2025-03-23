@@ -3,7 +3,7 @@ import './Homepage.css';
 import CardList from "../Components/CardsList";
 import CategoryCard from "../Components/CategoryCard";
 import AddItemForm from "../Components/AddItemForm";
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, useMutation } from '@apollo/client';
 import { CircularProgress, Button, Typography, Fab } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
@@ -25,6 +25,15 @@ const GET_PRESENTS = gql`
   }
 `;
 
+const DELETE_PRESENT = gql`
+  mutation DeletePresent($id: Int!) {
+    delete_presents_by_pk(id: $id) {
+      id
+    }
+  }
+`;
+
+
 function groupByCategory(items) {
   return Array.from(
     items.reduce((acc, item) => {
@@ -43,7 +52,10 @@ function Homepage() {
   const [showForm, setShowForm] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [flyCard, setFlyCard] = useState(null); // { from, to, category, id }
+  const [editingItem, setEditingItem] = useState(null);
+  const [deletePresent] = useMutation(DELETE_PRESENT);
   const categoryRefs = useRef({});
+
   useEffect(() => {
     const seenWelcome = localStorage.getItem('seenWelcome');
     if (!seenWelcome) {
@@ -74,20 +86,34 @@ function Homepage() {
   if (!data || !data.presents) return <p>No data found!</p>;
 
   const groupedPresents = groupByCategory(data.presents);
+  const handleDelete = async (item) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${item.name}"?`);
+    if (!confirmDelete) return;
 
+    try {
+      await deletePresent({ variables: { id: item.id } });
+      await refetch(); // refresh list
+    } catch (err) {
+      console.error("Failed to delete:", err);
+      alert("Something went wrong while deleting.");
+    }
+  };
 
   return (
     <div>
       {/* <div className="sparkle-background" /> */}
       {showForm && (
         <AddItemForm
-          onClose={() => setShowForm(false)}
+          onClose={() => {
+            setShowForm(false);
+            setEditingItem(null);
+          }}
           onSuccess={refetch}
-          setFlyCard={setFlyCard}
+          initialData={editingItem} // ✨ pass the data here
           categoryRefs={categoryRefs}
+          setFlyCard={setFlyCard}
         />
       )}
-
       {showWelcome && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -155,7 +181,14 @@ function Homepage() {
           >
             Back to Categories
           </Button>
-          <CardList items={groupedPresents.find(([category]) => category === selectedCategory)[1]} />
+          <CardList
+            items={groupedPresents.find(([category]) => category === selectedCategory)[1]}
+            onEdit={(item) => {
+              setEditingItem(item);
+              setShowForm(true);
+            }}
+            onDelete={(item) => handleDelete(item)} // we'll define this next
+          />
         </div>
       )}
       <motion.div

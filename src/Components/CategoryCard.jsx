@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 const CategoryCard = React.forwardRef(({ category, itemCount, onClick }, ref) => {
   return (
     <motion.div
+      className="category-card"
       ref={ref} // <--- this line is key!
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.97 }}
