@@ -12,6 +12,8 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.1",
+    "canvas-confetti": "^1.9.3",
+    "framer-motion": "^12.5.0",
     "graphql": "^16.9.0",
     "open-graph-scraper": "^6.9.0",
     "particles.js": "^2.0.0",

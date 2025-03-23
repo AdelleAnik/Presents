@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Grid, TextField, Typography, Button, FormControl, Autocomplete, Dialog, DialogContent, DialogActions, DialogTitle, Grow, Snackbar, } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
+import './AddItemForm.css';
 
 
 const GET_CATEGORIES = gql`
@@ -54,7 +57,7 @@ const DELETE_PRESENTS_BY_CATEGORY = gql`
 `;
 
 
-function AddItemForm({ onClose, onSuccess }) {
+function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -69,6 +72,29 @@ function AddItemForm({ onClose, onSuccess }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState('');
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const sparkleBurst = (x, y) => {
+    for (let i = 0; i < 15; i++) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.left = `${x}px`;
+      sparkle.style.top = `${y}px`;
+
+      const angle = Math.random() * 2 * Math.PI;
+      const radius = 100;
+      const offsetX = Math.cos(angle) * radius;
+      const offsetY = Math.sin(angle) * radius;
+      sparkle.style.setProperty('--x', `${offsetX}px`);
+      sparkle.style.setProperty('--y', `${offsetY}px`);
+
+      document.body.appendChild(sparkle);
+
+      setTimeout(() => {
+        sparkle.remove();
+      }, 1000);
+    }
+  };
 
   //graphql
   const { data } = useQuery(GET_CATEGORIES);
@@ -124,6 +150,29 @@ function AddItemForm({ onClose, onSuccess }) {
           url: formData.url,
         },
       });
+      // confetti({
+      //   particleCount: 100,
+      //   spread: 70,
+      //   origin: { y: 0.6 },
+      // });
+      // Get button center coordinates
+      const button = document.querySelector('button[type="submit"]');
+      const rect = button.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      sparkleBurst(x, y);
+      setFormSubmitted(true);
+      const categoryElement = categoryRefs.current[formData.category];
+      if (categoryElement) {
+        const toRect = categoryElement.getBoundingClientRect();
+        setFlyCard({
+          from: rect,
+          to: toRect,
+          category: formData.category,
+        });
+      }
+      setTimeout(() => setFormSubmitted(false), 200);
       onSuccess(); // Refetch data
       onClose(); // Close form
     } catch (error) {
@@ -144,10 +193,20 @@ function AddItemForm({ onClose, onSuccess }) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 1300, // Add this or higher!
       }}
     >
-      <form
+      <motion.form
+        key={formSubmitted ? 'submitted' : 'default'}
         onSubmit={handleSubmit}
+        initial={{ scale: 1 }}
+        animate={{ scale: 1.06 }}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 12,
+        }}
+        whileHover={{ boxShadow: '0 0 25px rgba(124, 77, 255, 0.3)' }}
         style={{
           backgroundColor: 'white',
           padding: '20px',
@@ -156,107 +215,146 @@ function AddItemForm({ onClose, onSuccess }) {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         }}
       >
+
         <Typography variant="h4" component="h2" textAlign={'center'}>
           Add New Item
         </Typography>
-        <Grid container spacing={2}>
-          {Object.keys(formData).map((field) => (
-            <Grid item xs={12} sm={12} key={field}>
-              {field === 'category' ? (
-                <FormControl fullWidth variant="outlined">
-                  <Autocomplete
-                    freeSolo
-                    options={categories}
-                    value={formData.category}
-                    onChange={handleCategoryChange}
-                    renderOption={(props, option) => (
-                      <li
-                        {...props}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          paddingRight: '8px',
-                        }}
-                      >
-                        <span>{option}</span>
-                        <DeleteIcon
-                          fontSize="small"
-                          style={{ cursor: 'pointer', marginLeft: 8 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCategoryToDelete(option);
-                            setOpenDeleteModal(true);
-                          }}
-                        />
-                      </li>
-                    )}
-                    ListboxProps={{
-                      style: {
-                        maxHeight: '200px', // sets max height
-                        overflowY: 'auto',  // enables vertical scrolling
-                      },
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Category"
-                        variant="outlined"
-                        name="category"
-                        onChange={handleChange}
-                      />
-                    )}
-                  />
 
-                </FormControl>
-              ) : (
-                <TextField
-                  fullWidth
-                  label={field.charAt(0).toUpperCase() + field.slice(1)}
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  variant="outlined"
-                />
-              )}
-            </Grid>
-          ))}
-        </Grid>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+        >
+          <Grid container spacing={2}>
+            {Object.keys(formData).map((field) => (
+              <Grid item xs={12} sm={12} key={field}>
+                {field === 'category' ? (
+                  <FormControl fullWidth variant="outlined">
+                    <Autocomplete
+                      freeSolo
+                      options={categories}
+                      value={formData.category}
+                      onChange={handleCategoryChange}
+                      renderOption={(props, option) => (
+                        <li
+                          {...props}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingRight: '8px',
+                          }}
+                        >
+                          <span>{option}</span>
+                          <DeleteIcon
+                            fontSize="small"
+                            style={{ cursor: 'pointer', marginLeft: 8 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCategoryToDelete(option);
+                              setOpenDeleteModal(true);
+                            }}
+                          />
+                        </li>
+                      )}
+                      ListboxProps={{
+                        style: {
+                          maxHeight: '200px',
+                          overflowY: 'auto',
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#999 #f0f0f0',
+                          padding: 0,
+                        },
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Category"
+                          variant="outlined"
+                          name="category"
+                          onChange={handleChange}
+                        />
+                      )}
+                    />
+
+                  </FormControl>
+                ) : (
+                  <TextField
+                    fullWidth
+                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    variant="outlined"
+                  />
+                )}
+              </Grid>
+            ))}
+          </Grid>
+        </motion.div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
           <Button
             type="button"
             onClick={onClose}
             variant="outlined"
-            color="tertiary"
+            sx={{
+              borderRadius: '999px',
+              padding: '8px 20px',
+              fontWeight: 'bold',
+              borderColor: '#ccc',
+              color: '#555',
+              '&:hover': {
+                borderColor: '#999',
+                backgroundColor: '#f9f9f9',
+              }
+            }}
           >
             Cancel
           </Button>
+
           <Button
             type="submit"
             variant="contained"
-            color="primary"
+            sx={{
+              backgroundColor: '#f06292',
+              borderRadius: '999px',
+              padding: '8px 24px',
+              fontWeight: 'bold',
+              color: 'white',
+              boxShadow: '0 4px 10px rgba(240, 98, 146, 0.4)',
+              '&:hover': {
+                backgroundColor: '#ec407a',
+                boxShadow: '0 6px 14px rgba(240, 98, 146, 0.5)',
+              }
+            }}
           >
             Add
           </Button>
         </div>
+
         <Dialog
           open={openDeleteModal}
           onClose={() => setOpenDeleteModal(false)}
           TransitionComponent={Grow}
           BackdropProps={{
             style: {
-              backdropFilter: 'blur(4px)',
+              backdropFilter: 'blur(5px)',
               backgroundColor: 'rgba(0, 0, 0, 0.3)',
             },
           }}
           PaperProps={{
-            style: {
-              borderRadius: '12px',
-              padding: '20px',
+            sx: {
+              borderRadius: 4,
+              p: 3,
+              boxShadow: 6,
+              background: 'linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%)',
             },
           }}
         >
-          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogTitle sx={{ fontWeight: 'bold', color: '#d32f2f' }}>
+            ⚠️ Confirm Deletion
+          </DialogTitle>
+
           <DialogContent>
             <Typography>
               Are you sure you want to delete all items under the category "<strong>{categoryToDelete}</strong>"?
@@ -294,9 +392,11 @@ function AddItemForm({ onClose, onSuccess }) {
           open={snackbarOpen}
           autoHideDuration={3000}
           onClose={() => setSnackbarOpen(false)}
-          message={`Category "${categoryToDelete}" deleted.`}
+          message={`🎉 Gift added successfully!`}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         />
-      </form>
+
+      </motion.form>
     </div>
   );
 }

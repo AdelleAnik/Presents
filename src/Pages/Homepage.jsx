@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import './Homepage.css';
 import CardList from "../Components/CardsList";
 import CategoryCard from "../Components/CategoryCard";
 import AddItemForm from "../Components/AddItemForm";
 import { useQuery, gql } from '@apollo/client';
-import { CircularProgress, Button, Typography, Box } from '@mui/material';
+import { CircularProgress, Button, Typography, Box, Fab } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { motion } from 'framer-motion';
+import confetti from "canvas-confetti";
+import FlyingCard from "../Components/FlyingCard";
+
 
 const GET_PRESENTS = gql`
   query GetPresents {
@@ -37,6 +41,22 @@ function Homepage() {
   const { data, loading, refetch } = useQuery(GET_PRESENTS);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [flyCard, setFlyCard] = useState(null); // { from, to, category, id }
+  const categoryRefs = useRef({});
+  useEffect(() => {
+    const seenWelcome = localStorage.getItem('seenWelcome');
+    if (!seenWelcome) {
+      setShowWelcome(true);
+      localStorage.setItem('seenWelcome', 'true');
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.3 }
+      });
+    }
+  }, []);
+
 
   if (loading) {
     return (
@@ -55,44 +75,66 @@ function Homepage() {
 
   const groupedPresents = groupByCategory(data.presents);
 
+
   return (
     <div>
-      {showForm && <AddItemForm onClose={() => setShowForm(false)} onSuccess={refetch} />}
+      {/* <div className="sparkle-background" /> */}
+      {showForm && (
+        <AddItemForm
+          onClose={() => setShowForm(false)}
+          onSuccess={refetch}
+          setFlyCard={setFlyCard}
+          categoryRefs={categoryRefs}
+        />
+      )}
 
-      <Box sx={{ textAlign: 'center', my: 4 }}>
-        <Typography
-          variant="h2"
-          component="h1"
-          sx={{
-            fontWeight: 'bold',
-            background: 'linear-gradient(45deg,rgb(204, 0, 255),rgb(55, 0, 255))',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            marginBottom: '10px',
+      {showWelcome && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          style={{ textAlign: 'center', marginBottom: '20px' }}
+        >
+          <Typography variant="h4" color="primary" fontWeight="bold">
+            Hi Adelle 👋
+          </Typography>
+          <Typography variant="subtitle1" color="textSecondary">
+            Ready to make someone smile today?
+          </Typography>
+        </motion.div>
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
+        <Typography variant="h3" align="center" sx={{ fontWeight: 'bold', color: 'purple' }}>
+          🎁 Gifts for Adelle
+        </Typography>
+        <Typography variant="subtitle1" align="center" color="text.secondary" gutterBottom>
+          Your magical wish list space ✨
+        </Typography>
+      </motion.div>
+      {!selectedCategory ? (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '24px',
+            padding: '20px',
+            marginTop: '30px',
           }}
         >
-          Gifts for Adelle
-        </Typography>
-        <Box
-          sx={{
-            width: '60px',
-            height: '4px',
-            backgroundColor: '#007bff',
-            margin: '0 auto',
-            borderRadius: '2px',
-          }}
-        />
-      </Box>
-
-      {!selectedCategory ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
           {groupedPresents.map(([category, items]) => (
             <CategoryCard
-              key={category}
+              ref={(el) => categoryRefs.current[category] = el}
               category={category}
               itemCount={items.length}
               onClick={() => setSelectedCategory(category)}
             />
+
           ))}
         </div>
       ) : (
@@ -116,25 +158,38 @@ function Homepage() {
           <CardList items={groupedPresents.find(([category]) => category === selectedCategory)[1]} />
         </div>
       )}
-      <button
-        onClick={() => setShowForm(true)}
+      <motion.div
+        animate={{
+          scale: [1, 1.1, 1], // pulse only, no boxShadow here
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 2,
+          ease: 'easeInOut'
+        }}
         style={{
           position: 'fixed',
           bottom: '20px',
           right: '20px',
-          borderRadius: '50%',
-          width: '60px',
-          height: '60px',
-          fontSize: '24px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          cursor: 'pointer',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          zIndex: 10
         }}
       >
-        +
-      </button>
+        <Fab
+          onClick={() => setShowForm(true)}
+          sx={{
+            backgroundColor: '#f06292',
+            color: '#fff',
+            boxShadow: '0 4px 12px rgba(240, 98, 146, 0.4)', // soft pink shadow
+            '&:hover': {
+              backgroundColor: '#ec407a',
+              boxShadow: '0 6px 14px rgba(240, 98, 146, 0.6)', // glow on hover
+            }
+          }}
+        >
+          +
+        </Fab>
+      </motion.div>
+      <FlyingCard flyCard={flyCard} onComplete={() => setFlyCard(null)} />
     </div>
   );
 }

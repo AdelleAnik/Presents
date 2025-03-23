@@ -1,0 +1,22 @@
+.sparkle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #fff 0%, #f0f0f0 100%);
+    border-radius: 50%;
+    animation: sparkle-move 0.8s ease-out forwards;
+    pointer-events: none;
+    z-index: 2000;
+  }
+  
+  @keyframes sparkle-move {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--x), var(--y)) scale(0.5);
+    }
+  }
+  
