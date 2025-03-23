@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Box } from '@mui/material';
+import { Card, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 
 const CategoryCard = React.forwardRef(({ category, itemCount, onClick }, ref) => {

@@ -4,7 +4,7 @@ import CardList from "../Components/CardsList";
 import CategoryCard from "../Components/CategoryCard";
 import AddItemForm from "../Components/AddItemForm";
 import { useQuery, gql } from '@apollo/client';
-import { CircularProgress, Button, Typography, Box, Fab } from '@mui/material';
+import { CircularProgress, Button, Typography, Fab } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import confetti from "canvas-confetti";

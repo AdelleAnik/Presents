@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { Grid, TextField, Typography, Button, FormControl, Autocomplete, Dialog, DialogContent, DialogActions, DialogTitle, Grow, Snackbar, } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
 import './AddItemForm.css';
 
