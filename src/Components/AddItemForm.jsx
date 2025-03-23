@@ -55,18 +55,29 @@ const DELETE_PRESENTS_BY_CATEGORY = gql`
   }
 `;
 
+const UPDATE_PRESENT = gql`
+  mutation UpdatePresent($id: Int!, $changes: presents_set_input!) {
+    update_presents_by_pk(pk_columns: { id: $id }, _set: $changes) {
+      id
+    }
+  }
+`;
 
-function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
+function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData = null }) {
+  const isEditMode = Boolean(initialData?.id);
   const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    price: '',
-    description: '',
-    image_url: '',
-    url: '',
+    name: initialData?.name || '',
+    category: initialData?.category || '',
+    price: initialData?.price || '',
+    description: initialData?.description || '',
+    image_url: initialData?.image_url || '',
+    url: initialData?.url || '',
   });
+
   const [addPresent] = useMutation(ADD_PRESENT);
+  const [updatePresent] = useMutation(UPDATE_PRESENT);
   const [deletePresents] = useMutation(DELETE_PRESENTS_BY_CATEGORY);
+
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -132,29 +143,28 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const missingFields = Object.entries(formData).filter(([key, value]) => !value);
+
+    const missingFields = Object.entries(formData).filter(([_, value]) => !value);
     if (missingFields.length > 0) {
       alert(`Please fill out all fields: ${missingFields.map(([key]) => key).join(', ')}`);
       return;
     }
 
     try {
-      await addPresent({
-        variables: {
-          name: formData.name,
-          image_url: formData.image_url,
-          description: formData.description,
-          category: formData.category,
-          price: formData.price,
-          url: formData.url,
-        },
-      });
-      // confetti({
-      //   particleCount: 100,
-      //   spread: 70,
-      //   origin: { y: 0.6 },
-      // });
-      // Get button center coordinates
+      if (isEditMode) {
+        await updatePresent({
+          variables: {
+            id: initialData.id,
+            changes: { ...formData },
+          },
+        });
+        onSuccess();
+        onClose();
+        return; // Skip flying animation for edit
+      }
+
+      await addPresent({ variables: { ...formData } });
+
       const button = document.querySelector('button[type="submit"]');
       const rect = button.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
@@ -162,22 +172,22 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
 
       sparkleBurst(x, y);
       setFormSubmitted(true);
+
       const categoryElement = categoryRefs.current[formData.category];
       if (categoryElement) {
         const toRect = categoryElement.getBoundingClientRect();
-        setFlyCard({
-          from: rect,
-          to: toRect,
-          category: formData.category,
-        });
+        setFlyCard({ from: rect, to: toRect, category: formData.category });
       }
+
       setTimeout(() => setFormSubmitted(false), 200);
-      onSuccess(); // Refetch data
-      onClose(); // Close form
+      onSuccess();
+      onClose();
     } catch (error) {
-      console.error('Error adding item:', error);
+      console.error('Error submitting item:', error);
     }
   };
+
+
 
 
   return (
@@ -214,10 +224,29 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         }}
       >
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Typography
+            variant="h4"
+            component="h2"
+            textAlign="center"
+            sx={{
+              fontWeight: 'bold',
+              background: 'linear-gradient(90deg, #ff6ec4, #7873f5)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              mb: 3,
+            }}
+          >
+            {/* ✨ Add New Item ✨ */}
+            {isEditMode ? 'Edit' : 'Add'} New Item
+          </Typography>
+        </motion.div>
 
-        <Typography variant="h4" component="h2" textAlign={'center'}>
-          Add New Item
-        </Typography>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -327,7 +356,7 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs }) {
               }
             }}
           >
-            Add
+            {isEditMode ? 'Update' : 'Add'}
           </Button>
         </div>
 

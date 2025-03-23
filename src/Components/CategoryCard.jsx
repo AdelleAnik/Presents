@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 const CategoryCard = React.forwardRef(({ category, itemCount, onClick }, ref) => {
   return (
     <motion.div
+      className="category-card"
       ref={ref} // <--- this line is key!
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.97 }}
@@ -26,18 +27,50 @@ const CategoryCard = React.forwardRef(({ category, itemCount, onClick }, ref) =>
           textAlign: 'center',
           cursor: 'pointer',
           position: 'relative',
+          display: 'flex',              // <-- NEW
+          flexDirection: 'column',      // <-- NEW
+          justifyContent: 'center',     // <-- NEW
+          alignItems: 'center',         // <-- NEW
           transition: 'all 0.3s ease',
           '&:hover': {
-            boxShadow: '0 10px 30px rgba(255, 105, 180, 0.3)', // pink glow
+            boxShadow: '0 10px 30px rgba(255, 105, 180, 0.3)',
           },
         }}
       >
-        <Typography variant="h6" fontWeight="bold" color="primary">
+
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{
+            background: 'linear-gradient(45deg, #ff4081, #7c4dff)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              textShadow: '0 0 8px rgba(255, 64, 129, 0.6), 0 0 15px rgba(124, 77, 255, 0.4)',
+              transform: 'scale(1.03)',
+            }
+          }}
+        >
           {category}
         </Typography>
-        <Typography variant="body2" color="textSecondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#a78bfa', // pastel purple (you can try #ffb6c1, #90caf9, or any dreamy shade)
+            fontWeight: 500,
+            letterSpacing: '0.5px',
+            mt: 0.5,
+            transition: 'color 0.3s',
+            '&:hover': {
+              color: '#c084fc',
+            }
+          }}
+        >
           {itemCount} items
         </Typography>
+
+
       </Card>
     </motion.div>
   );
