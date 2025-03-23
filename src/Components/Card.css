@@ -1,12 +1,17 @@
 .card {
-  position: relative;
-  width: 220px;
+  width: 240px;
+  height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 16px;
   background: white;
-  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
+
 
 .card:hover {
   transform: translateY(-4px);

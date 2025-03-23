@@ -4,7 +4,7 @@ import CardList from "../Components/CardsList";
 import CategoryCard from "../Components/CategoryCard";
 import AddItemForm from "../Components/AddItemForm";
 import { useQuery, gql, useMutation } from '@apollo/client';
-import { CircularProgress, Button, Typography, Fab } from '@mui/material';
+import { CircularProgress, Button, Typography, Fab, Box } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import confetti from "canvas-confetti";
@@ -165,30 +165,105 @@ function Homepage() {
         </div>
       ) : (
         <div>
-          <h1 style={{ textAlign: 'center' }}>{selectedCategory}</h1>
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              fontWeight: 'bold',
+              color: '#5e35b1',
+              mt: 4,
+              mb: 2,
+              textShadow: '0 1px 4px rgba(94, 53, 177, 0.3)',
+              letterSpacing: '0.5px',
+            }}
+          >
+            ✨ {selectedCategory} ✨
+          </Typography>
           <Button
-            variant="contained"
-            color="primary"
             startIcon={<ArrowBackIcon />}
             onClick={() => setSelectedCategory(null)}
             sx={{
-              marginBottom: '20px',
-              backgroundColor: '#007bff',
+              margin: '20px',
+              padding: '8px 20px',
+              borderRadius: '30px',
+              fontWeight: 'bold',
+              textTransform: 'none',
+              background: 'linear-gradient(90deg, #ff8a9d, #ffb1e6)',
+              color: 'white',
+              boxShadow: '0 4px 14px rgba(255, 105, 180, 0.4)',
               '&:hover': {
-                backgroundColor: '#0056b3',
-              },
+                background: 'linear-gradient(90deg, #ff6f91, #ffa3d7)',
+              }
             }}
           >
             Back to Categories
           </Button>
-          <CardList
+
+          {/* <CardList
             items={groupedPresents.find(([category]) => category === selectedCategory)[1]}
             onEdit={(item) => {
               setEditingItem(item);
               setShowForm(true);
             }}
             onDelete={(item) => handleDelete(item)} // we'll define this next
-          />
+          /> */}
+          {(() => {
+            const selectedGroup = groupedPresents.find(([category]) => category === selectedCategory);
+            const selectedItems = selectedGroup ? selectedGroup[1] : [];
+
+            return selectedItems.length > 0 ? (
+              <CardList items={selectedItems} onDelete={(item) => handleDelete(item)} onEdit={(item) => {
+                setEditingItem(item);
+                setShowForm(true);
+              }} />
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Box
+                  sx={{
+                    textAlign: 'center',
+                    py: 6,
+                    px: 2,
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, #fff8fb, #f2f7ff)',
+                    maxWidth: 500,
+                    margin: 'auto',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  <Typography variant="h5" fontWeight="bold" gutterBottom color="secondary">
+                    🪄 This category is empty...
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary" gutterBottom>
+                    Why not add something magical? ✨
+                    If you don't want to add anyhting that's okay, just go back to the page before and this category will automatically be deleted
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      borderRadius: '999px',
+                      backgroundColor: '#f06292',
+                      textTransform: 'none',
+                      px: 4,
+                      py: 1,
+                      fontWeight: 'bold',
+                      '&:hover': {
+                        backgroundColor: '#ec407a',
+                      },
+                    }}
+                    onClick={() => setShowForm(true)}
+                  >
+                    + Add a Gift
+                  </Button>
+                </Box>
+              </motion.div>
+            );
+          })()}
+
         </div>
       )}
       <motion.div
