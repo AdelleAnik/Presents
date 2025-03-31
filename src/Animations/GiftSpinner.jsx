@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Box, Typography } from '@mui/material';
 import { motion, useAnimation } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -10,7 +10,22 @@ function GiftSpinner({ presents }) {
     const [isSpinning, setIsSpinning] = useState(false);
     const [selectedGift, setSelectedGift] = useState(null);
     const [reelItems, setReelItems] = useState([]);
+    const [previewGift, setPreviewGift] = useState(null);
     const controls = useAnimation();
+
+    useEffect(() => {
+        if (!presents.length) return;
+
+        const initialIndex = Math.floor(Math.random() * presents.length);
+        const randomGift = presents[initialIndex];
+        setPreviewGift(randomGift);
+
+        const padded = [null, randomGift, null];
+        setReelItems(padded);
+        controls.set({ y: -itemHeight });
+    }, [presents, controls]);
+
+
 
     const spin = async () => {
         if (isSpinning || presents.length === 0) return;
@@ -50,7 +65,7 @@ function GiftSpinner({ presents }) {
     return (
         <Box sx={{ textAlign: 'center', my: 4 }}>
             <Typography variant="h5" fontWeight="bold" gutterBottom>
-                🎰 Spin the Gift Wheel
+                🎰 Still unsure about what to pick? Spin the Gift Wheel 😉
             </Typography>
 
             <Box
@@ -114,11 +129,12 @@ function GiftSpinner({ presents }) {
                 {isSpinning ? 'Spinning...' : 'Spin'}
             </Button>
 
-            {selectedGift && (
+            {selectedGift && isSpinning === false && (
                 <Typography sx={{ mt: 2 }} variant="subtitle1">
                     🎁 You got: <strong>{selectedGift.name}</strong>!
                 </Typography>
             )}
+
         </Box>
     );
 }
