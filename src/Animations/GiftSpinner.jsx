@@ -3,6 +3,8 @@ import { Button, Box, Typography } from '@mui/material';
 import { motion, useAnimation } from 'framer-motion';
 import confetti from 'canvas-confetti';
 const dingSound = new Audio('/bell.mp3');
+const drumRoll = new Audio('/drum-roll.mp3');
+
 
 
 function GiftSpinner({ presents, goToGift }) {
@@ -41,7 +43,6 @@ function GiftSpinner({ presents, goToGift }) {
         const extraSpins = Math.floor(Math.random() * 3); // 0–2 extra
         const totalItems = (minRounds + extraSpins) * presents.length + selectedIndex;
 
-        // Create reel items BEFORE updating state
         const paddedItems = [
             null,
             ...Array.from({ length: totalItems + 1 }, (_, i) => presents[i % presents.length]),
@@ -53,17 +54,33 @@ function GiftSpinner({ presents, goToGift }) {
         setReelItems(paddedItems);
         setIsBlurry(true);
 
-        // Wait for reelItems to render
         setTimeout(async () => {
             const finalY = -itemHeight * (totalItems + 1);
+
+            let tickInterval = setInterval(() => {
+                // drumRoll.currentTime = 0;
+                drumRoll.play();
+            }, 100); // match your item change speed visually
+
+            const halfwayY = finalY * 0.75; 
+
+            await controls.start({
+                y: halfwayY,
+                transition: {
+                    duration: 2.3,
+                    ease: 'linear',
+                },
+            });
 
             await controls.start({
                 y: finalY,
                 transition: {
-                    duration: 2.2,
-                    ease: [0.15, 0.6, 0.35, 1],
+                    duration: 1.4,
+                    ease: [0.15, 0.6, 0.35, 1], // nice ease-out
                 },
             });
+
+            clearInterval(tickInterval);
 
             const winner = paddedItems[totalItems + 1];
             setSelectedGift(winner);
