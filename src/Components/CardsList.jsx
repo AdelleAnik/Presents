@@ -17,7 +17,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 }
 };
 
-const CardList = ({ items, onEdit, onDelete }) => {
+const CardList = ({ items, onEdit, onDelete, highlightGiftId }) => {
   return (
     <motion.div
       variants={containerVariants}
@@ -33,7 +33,7 @@ const CardList = ({ items, onEdit, onDelete }) => {
     >
       {items.map(item => (
         <motion.div key={item.id} variants={itemVariants}>
-          <Card item={item} onEdit={onEdit} onDelete={onDelete} />
+          <Card item={item} onEdit={onEdit} onDelete={onDelete} highlight={item.id === highlightGiftId}/>
         </motion.div>
       ))}
     </motion.div>

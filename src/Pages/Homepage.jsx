@@ -55,6 +55,9 @@ function Homepage() {
   const [flyCard, setFlyCard] = useState(null); // { from, to, category, id }
   const [editingItem, setEditingItem] = useState(null);
   const [deletePresent] = useMutation(DELETE_PRESENT);
+  const [highlightGiftId, setHighlightGiftId] = useState(null);
+  const [showWheel, setShowWheel] = useState(true);
+
   const categoryRefs = useRef({});
 
   useEffect(() => {
@@ -99,6 +102,13 @@ function Homepage() {
       alert("Something went wrong while deleting.");
     }
   };
+
+  const goToGift = (gift) => {
+    setShowWheel(false);
+    setSelectedCategory(gift.category);
+    setHighlightGiftId(gift.id);
+  };
+
 
   return (
     <div>
@@ -159,9 +169,12 @@ function Homepage() {
               ref={(el) => categoryRefs.current[category] = el}
               category={category}
               itemCount={items.length}
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => {
+                setSelectedCategory(category);
+                setHighlightGiftId(null);
+                setShowWheel(false);
+              }}
             />
-
           ))}
         </div>
       ) : (
@@ -182,7 +195,11 @@ function Homepage() {
           </Typography>
           <Button
             startIcon={<ArrowBackIcon />}
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => {
+              setSelectedCategory(null);
+              setShowWheel(true);
+              setHighlightGiftId(null); // optional cleanup
+            }}
             sx={{
               margin: '20px',
               padding: '8px 20px',
@@ -216,7 +233,7 @@ function Homepage() {
               <CardList items={selectedItems} onDelete={(item) => handleDelete(item)} onEdit={(item) => {
                 setEditingItem(item);
                 setShowForm(true);
-              }} />
+              }} highlightGiftId={highlightGiftId} />
             ) : (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -299,7 +316,11 @@ function Homepage() {
         </Fab>
       </motion.div>
       <FlyingCard flyCard={flyCard} onComplete={() => setFlyCard(null)} />
-      <GiftSpinner presents={data.presents} />
+      {showWheel && (
+        <GiftSpinner presents={data.presents} goToGift={goToGift} />
+      )}
+
+
 
     </div>
   );

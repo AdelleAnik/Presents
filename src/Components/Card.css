@@ -61,3 +61,16 @@
 .card-actions button:hover {
   background-color: #ffeef1;
 }
+
+.highlighted {
+  animation: flash 5s ease-in-out;
+}
+
+@keyframes flash {
+  0%   { box-shadow: 0 0 0px rgba(126, 87, 194, 0.7); }
+  25%  { box-shadow: 0 0 20px rgba(126, 87, 194, 1); }
+  50%  { box-shadow: 0 0 30px rgba(126, 87, 194, 1); }
+  75%  { box-shadow: 0 0 20px rgba(126, 87, 194, 1); }
+  100% { box-shadow: 0 0 0px rgba(126, 87, 194, 0.7); }
+}
+

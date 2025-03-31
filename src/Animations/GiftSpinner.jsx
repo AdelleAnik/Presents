@@ -5,12 +5,14 @@ import confetti from 'canvas-confetti';
 const dingSound = new Audio('/bell.mp3');
 
 
-function GiftSpinner({ presents }) {
+function GiftSpinner({ presents, goToGift }) {
     const itemHeight = 260;
     const [isSpinning, setIsSpinning] = useState(false);
     const [selectedGift, setSelectedGift] = useState(null);
     const [reelItems, setReelItems] = useState([]);
     const [previewGift, setPreviewGift] = useState(null);
+    const [isBlurry, setIsBlurry] = useState(false);
+
     const controls = useAnimation();
 
     useEffect(() => {
@@ -33,34 +35,55 @@ function GiftSpinner({ presents }) {
         setIsSpinning(true);
         setSelectedGift(null);
 
-        const rounds = Math.floor(Math.random() * 4) + 4;
+        const itemHeight = 260;
         const selectedIndex = Math.floor(Math.random() * presents.length);
-        const totalItems = rounds * presents.length + selectedIndex;
+        const minRounds = 2;
+        const extraSpins = Math.floor(Math.random() * 3); // 0–2 extra
+        const totalItems = (minRounds + extraSpins) * presents.length + selectedIndex;
 
+        // Create reel items BEFORE updating state
         const paddedItems = [
-            null, // spacer on top
+            null,
             ...Array.from({ length: totalItems + 1 }, (_, i) => presents[i % presents.length]),
-            null // spacer on bottom
+            null
         ];
 
+        // Reset scroll position to top before animating
+        await controls.set({ y: 0 });
         setReelItems(paddedItems);
+        setIsBlurry(true);
 
-        const finalY = -itemHeight * (totalItems + 1);
+        // Wait for reelItems to render
+        setTimeout(async () => {
+            const finalY = -itemHeight * (totalItems + 1);
 
-        await controls.start({
-            y: finalY,
-            transition: {
-                duration: 2,
-                ease: [0.15, 0.6, 0.35, 1],
-            },
-        });
+            await controls.start({
+                y: finalY,
+                transition: {
+                    duration: 2.2,
+                    ease: [0.15, 0.6, 0.35, 1],
+                },
+            });
 
-        const winner = paddedItems[totalItems + 1]; // center item
-        setSelectedGift(winner);
-        setIsSpinning(false);
-        dingSound.play();
-        confetti({ particleCount: 100, spread: 70 });
+            const winner = paddedItems[totalItems + 1];
+            setSelectedGift(winner);
+            setIsSpinning(false);
+            setIsBlurry(false);
+            dingSound.play();
+            confetti({ particleCount: 100, spread: 70 });
+        }, 50); // short delay ensures layout is ready
     };
+
+
+    const handleGoToPresent = (gift) => {
+        if (!gift) return;
+
+        // Assuming this function is passed down from Homepage via props
+        if (typeof goToGift === 'function') {
+            goToGift(gift);
+        }
+    };
+
 
     return (
         <Box sx={{ textAlign: 'center', my: 4 }}>
@@ -100,6 +123,8 @@ function GiftSpinner({ presents }) {
                                         maxWidth: '80%',
                                         borderRadius: '8px',
                                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                        filter: isBlurry ? 'blur(3px)' : 'none',
+                                        transition: 'filter 0.3s ease-in-out'
                                     }}
                                 />
                             ) : (
@@ -130,9 +155,28 @@ function GiftSpinner({ presents }) {
             </Button>
 
             {selectedGift && isSpinning === false && (
-                <Typography sx={{ mt: 2 }} variant="subtitle1">
-                    🎁 You got: <strong>{selectedGift.name}</strong>!
-                </Typography>
+                <>
+                    <Typography sx={{ mt: 2 }} variant="subtitle1">
+                        🎁 You got: <strong>{selectedGift.name}</strong>!
+                    </Typography>
+                    <Button
+                        onClick={() => handleGoToPresent(selectedGift)}
+                        sx={{
+                            mt: 1,
+                            borderRadius: '20px',
+                            backgroundColor: '#64b5f6',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            px: 3,
+                            textTransform: 'none',
+                            '&:hover': {
+                                backgroundColor: '#42a5f5',
+                            }
+                        }}
+                    >
+                        🧭 Go to Present
+                    </Button>
+                </>
             )}
 
         </Box>
