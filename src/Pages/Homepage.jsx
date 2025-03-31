@@ -8,7 +8,8 @@ import { CircularProgress, Button, Typography, Fab, Box } from '@mui/material';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import confetti from "canvas-confetti";
-import FlyingCard from "../Components/FlyingCard";
+import FlyingCard from "../Animations/FlyingCard";
+import GiftSpinner from "../Animations/GiftSpinner";
 
 
 const GET_PRESENTS = gql`
@@ -298,6 +299,8 @@ function Homepage() {
         </Fab>
       </motion.div>
       <FlyingCard flyCard={flyCard} onComplete={() => setFlyCard(null)} />
+      <GiftSpinner presents={data.presents} />
+
     </div>
   );
 }
