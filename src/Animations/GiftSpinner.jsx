@@ -11,9 +11,9 @@ function GiftSpinner({ presents, goToGift }) {
     const [isBlurry, setIsBlurry] = useState(false);
 
     const dingSound = new Audio('/bell.mp3');
-    dingSound.volume = 0.5; // 50% volume
+    dingSound.volume = 0.25; // 25% volume
     const drumRoll = new Audio('/drum-roll.mp3');
-    drumRoll.volume = 0.5; // 50% volume 
+    drumRoll.volume = 0.25; // 25% volume 
 
     const controls = useAnimation();
 
