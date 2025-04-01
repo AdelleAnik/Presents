@@ -2,9 +2,10 @@ import React from 'react';
 import './Card.css';
 import { Typography, Tooltip } from '@mui/material';
 
-function Card({ item, onEdit, onDelete }) {
+function Card({ item, onEdit, onDelete, cardRef, highlight }) {
   return (
-    <div className="card">
+    <div className={`card ${highlight ? 'highlighted' : ''}`}
+      ref={cardRef}>
       <a href={item.url} className="card-link">
         <img src={item.image_url} alt={item.name} />
         <div className="card-content">

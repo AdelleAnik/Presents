@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { Grid, TextField, Typography, Button, FormControl, Autocomplete, Dialog, DialogContent, DialogActions, DialogTitle, Grow, Snackbar, } from '@mui/material';
+import { Grid, TextField, Typography, Button, FormControl, Autocomplete, Dialog, DialogContent, DialogActions, DialogTitle, Grow, Snackbar } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { motion } from 'framer-motion';
 import './AddItemForm.css';
@@ -116,30 +116,15 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
   };
 
   const handleCategoryChange = async (event, newValue, reason) => {
-    const previousCategory = formData.category;
-
-    if (reason === 'clear' && categories.includes(previousCategory)) {
-      const confirmed = window.confirm(
-        `Do you want to delete the category "${previousCategory}" and all its items?`
-      );
-      if (confirmed) {
-        try {
-          await deletePresents({
-            variables: { category: previousCategory },
-            refetchQueries: [{ query: GET_CATEGORIES }],
-          });
-          alert(`Category "${previousCategory}" has been deleted.`);
-        } catch (error) {
-          console.error('Error deleting category:', error);
-          alert('Something went wrong while deleting.');
-        }
-      }
+    // 🔒 Block deletion if user is just clearing input
+    if (reason === 'clear') {
+      setFormData((prev) => ({ ...prev, category: '' }));
+      return;
     }
-
-    // Always update form data
+  
+    // ✅ Update input normally
     setFormData((prev) => ({ ...prev, category: newValue || '' }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -270,7 +255,18 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            paddingRight: '8px',
+                            padding: '8px 16px',
+                            margin: '4px 8px',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            backgroundColor: props['aria-selected'] ? '#f3e5f5' : 'transparent',
+                            transition: 'background-color 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#fce4ec';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = props['aria-selected'] ? '#f3e5f5' : 'transparent';
                           }}
                         >
                           <span>{option}</span>
@@ -285,14 +281,16 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
                           />
                         </li>
                       )}
+
                       ListboxProps={{
                         style: {
-                          maxHeight: '200px',
-                          overflowY: 'auto',
-                          scrollbarWidth: 'thin',
-                          scrollbarColor: '#999 #f0f0f0',
-                          padding: 0,
-                        },
+                          backgroundColor: '#fdf6fd',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                          padding: '6px 0',
+                          fontSize: '0.95rem',
+                          color: '#444',
+                        }
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -301,9 +299,43 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
                           variant="outlined"
                           name="category"
                           onChange={handleChange}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              backgroundColor: '#fdf6fd',
+                              '& fieldset': {
+                                borderColor: '#ce93d8',
+                              },
+                              '&:hover fieldset': {
+                                borderColor: '#ab47bc',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: '#7e57c2',
+                                boxShadow: '0 0 0 2px rgba(126, 87, 194, 0.1)',
+                              },
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontWeight: 'bold',
+                              color: '#9c27b0',
+                            },
+                          }}
                         />
                       )}
+
                     />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 1,
+                        fontSize: '0.8rem',
+                        color: '#9c27b0', // a nice purple from your theme
+                        fontStyle: 'italic',
+                        textAlign: 'left',
+                      }}
+                    >
+                      💡 You can type to create a new category or select from the list.
+                    </Typography>
+
 
                   </FormControl>
                 ) : (
@@ -314,7 +346,28 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
                     value={formData[field]}
                     onChange={handleChange}
                     variant="outlined"
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        backgroundColor: '#fdf6fd',
+                        '& fieldset': {
+                          borderColor: '#ce93d8',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#ab47bc',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#7e57c2',
+                          boxShadow: '0 0 0 2px rgba(126, 87, 194, 0.1)',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        fontWeight: 'bold',
+                        color: '#9c27b0',
+                      },
+                    }}
                   />
+
                 )}
               </Grid>
             ))}
@@ -327,18 +380,23 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
             variant="outlined"
             sx={{
               borderRadius: '999px',
-              padding: '8px 20px',
+              padding: '8px 24px',
               fontWeight: 'bold',
-              borderColor: '#ccc',
-              color: '#555',
+              color: '#ab47bc',
+              borderColor: '#ab47bc',
+              backgroundColor: 'transparent',
+              transition: 'all 0.3s ease',
               '&:hover': {
-                borderColor: '#999',
-                backgroundColor: '#f9f9f9',
+                backgroundColor: '#f3e5f5',
+                borderColor: '#9c27b0',
+                color: '#9c27b0',
+                boxShadow: '0 0 8px rgba(156, 39, 176, 0.2)',
               }
             }}
           >
             Cancel
           </Button>
+
 
           <Button
             type="submit"
