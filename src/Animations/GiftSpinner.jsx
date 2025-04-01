@@ -12,25 +12,21 @@ function GiftSpinner({ presents, goToGift }) {
     const [isSpinning, setIsSpinning] = useState(false);
     const [selectedGift, setSelectedGift] = useState(null);
     const [reelItems, setReelItems] = useState([]);
-    const [previewGift, setPreviewGift] = useState(null);
     const [isBlurry, setIsBlurry] = useState(false);
 
     const controls = useAnimation();
 
     useEffect(() => {
         if (!presents.length) return;
-
+      
         const initialIndex = Math.floor(Math.random() * presents.length);
         const randomGift = presents[initialIndex];
-        setPreviewGift(randomGift);
-
+      
         const padded = [null, randomGift, null];
         setReelItems(padded);
         controls.set({ y: -itemHeight });
-    }, [presents, controls]);
-
-
-
+      }, [presents, controls]);
+      
     const spin = async () => {
         if (isSpinning || presents.length === 0) return;
 
@@ -60,7 +56,7 @@ function GiftSpinner({ presents, goToGift }) {
             let tickInterval = setInterval(() => {
                 // drumRoll.currentTime = 0;
                 drumRoll.play();
-            }, 110); // match your item change speed visually
+            }, 115); // match your item change speed visually
 
             const halfwayY = finalY * 0.75; 
 
