@@ -57,7 +57,7 @@ function GiftSpinner({ presents, goToGift }) {
             let tickInterval = setInterval(() => {
                 // drumRoll.currentTime = 0;
                 drumRoll.play();
-            }, 115); // match your item change speed visually
+            }, 115); 
 
             const halfwayY = finalY * 0.75;
 
@@ -73,7 +73,7 @@ function GiftSpinner({ presents, goToGift }) {
                 y: finalY,
                 transition: {
                     duration: 1.4,
-                    ease: [0.15, 0.6, 0.35, 1], // nice ease-out
+                    ease: [0.15, 0.6, 0.35, 1], // ease-out
                 },
             });
 
@@ -85,14 +85,13 @@ function GiftSpinner({ presents, goToGift }) {
             setIsBlurry(false);
             dingSound.play();
             confetti({ particleCount: 100, spread: 70 });
-        }, 50); // short delay ensures layout is ready
+        }, 50); // short delay
     };
 
 
     const handleGoToPresent = (gift) => {
         if (!gift) return;
 
-        // Assuming this function is passed down from Homepage via props
         if (typeof goToGift === 'function') {
             goToGift(gift);
         }
