@@ -60,7 +60,7 @@ function GiftSpinner({ presents, goToGift }) {
             let tickInterval = setInterval(() => {
                 // drumRoll.currentTime = 0;
                 drumRoll.play();
-            }, 100); // match your item change speed visually
+            }, 110); // match your item change speed visually
 
             const halfwayY = finalY * 0.75; 
 
