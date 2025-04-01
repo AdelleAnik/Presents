@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box, Typography } from '@mui/material';
 import { motion, useAnimation } from 'framer-motion';
 import confetti from 'canvas-confetti';
-const dingSound = new Audio('/bell.mp3');
-const drumRoll = new Audio('/drum-roll.mp3');
-
-
 
 function GiftSpinner({ presents, goToGift }) {
     const itemHeight = 260;
@@ -14,19 +10,24 @@ function GiftSpinner({ presents, goToGift }) {
     const [reelItems, setReelItems] = useState([]);
     const [isBlurry, setIsBlurry] = useState(false);
 
+    const dingSound = new Audio('/bell.mp3');
+    dingSound.volume = 0.5; // 50% volume
+    const drumRoll = new Audio('/drum-roll.mp3');
+    drumRoll.volume = 0.5; // 50% volume 
+
     const controls = useAnimation();
 
     useEffect(() => {
         if (!presents.length) return;
-      
+
         const initialIndex = Math.floor(Math.random() * presents.length);
         const randomGift = presents[initialIndex];
-      
+
         const padded = [null, randomGift, null];
         setReelItems(padded);
         controls.set({ y: -itemHeight });
-      }, [presents, controls]);
-      
+    }, [presents, controls]);
+
     const spin = async () => {
         if (isSpinning || presents.length === 0) return;
 
@@ -58,7 +59,7 @@ function GiftSpinner({ presents, goToGift }) {
                 drumRoll.play();
             }, 115); // match your item change speed visually
 
-            const halfwayY = finalY * 0.75; 
+            const halfwayY = finalY * 0.75;
 
             await controls.start({
                 y: halfwayY,
