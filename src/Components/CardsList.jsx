@@ -8,27 +8,31 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-    }
-  }
+    },
+  },
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
+  show: { opacity: 1, y: 0 },
 };
 
 const CardList = ({ items, onEdit, onDelete, highlightGiftId }) => {
-  const renderRow = (rowItems) => (
-    <div
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
       style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '24px',
-        flexWrap: 'nowrap',
-        marginBottom: '24px',
+        padding: '20px',
+        display:'flex' ,
+        flexWrap: 'wrap',
+        justifyContent:  'center',
+        gap: '20px',
+        gridTemplateColumns: items.length >= 3 ? 'repeat(auto-fit, minmax(230px, 1fr))' : undefined,
       }}
     >
-      {rowItems.map(item => (
+      {items.map((item) => (
         <motion.div key={item.id} variants={itemVariants}>
           <Card
             item={item}
@@ -38,25 +42,8 @@ const CardList = ({ items, onEdit, onDelete, highlightGiftId }) => {
           />
         </motion.div>
       ))}
-    </div>
-  );
-
-  const shouldSplit = items.length > 4;
-
-  const midpoint = shouldSplit ? Math.ceil(items.length / 2) : items.length;
-  const topRow = items.slice(0, midpoint);
-  const bottomRow = shouldSplit ? items.slice(midpoint) : [];
-
-  return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-      style={{ padding: '20px' }}
-    >
-      {renderRow(topRow)}
-      {bottomRow.length > 0 && renderRow(bottomRow)}
     </motion.div>
+
   );
 };
 

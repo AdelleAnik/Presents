@@ -121,7 +121,7 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
       setFormData((prev) => ({ ...prev, category: '' }));
       return;
     }
-  
+
     // ✅ Update input normally
     setFormData((prev) => ({ ...prev, category: newValue || '' }));
   };
@@ -187,7 +187,7 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1300, // Add this or higher!
+        zIndex: 1300,
       }}
     >
       <motion.form
@@ -204,9 +204,13 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
         style={{
           backgroundColor: 'white',
           padding: '20px',
-          borderRadius: '8px',
-          width: '400px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          borderRadius: '16px',
+          width: '100%',
+          maxWidth: '400px',
+          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          margin: '0 16px',
         }}
       >
         <motion.div
@@ -238,7 +242,7 @@ function AddItemForm({ onClose, onSuccess, setFlyCard, categoryRefs, initialData
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             {Object.keys(formData).map((field) => (
               <Grid item xs={12} sm={12} key={field}>
                 {field === 'category' ? (

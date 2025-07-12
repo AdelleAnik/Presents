@@ -159,13 +159,15 @@ function Homepage() {
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
-            gap: '24px',
-            padding: '20px',
-            marginTop: '30px',
+            gap: '11px',
+            maxWidth: '1000px',
+            margin: '20px auto',
+            padding: '0 20px',
           }}
         >
           {groupedPresents.map(([category, items]) => (
             <CategoryCard
+              key={category}
               ref={(el) => categoryRefs.current[category] = el}
               category={category}
               itemCount={items.length}
@@ -177,6 +179,7 @@ function Homepage() {
             />
           ))}
         </div>
+
       ) : (
         <div>
           <Typography
